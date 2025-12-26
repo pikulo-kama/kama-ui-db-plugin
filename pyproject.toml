@@ -1,0 +1,29 @@
+[project]
+name = "kama-ui-db-plugin"
+license = {file = "LICENSE"}
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+]
+version = "0.1.0"
+dependencies = [
+    "kama-ui @ git+https://github.com/pikulo-kama/kama-ui.git",
+    "kama-db @ git+https://github.com/pikulo-kama/kama-db.git"
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest-cov >= 7.0.0, < 8.0.0"
+]
+
+[project.entry-points."kama_ui.plugins"]
+db_plugin = "kui_db_plugin.plugin"
+
+[tool.coverage.run]
+source = ["kui_db_plugin"]
+disable_warnings = ["module-not-measured"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+addopts = "--cov=kui_db_plugin --cov-report=term-missing"
