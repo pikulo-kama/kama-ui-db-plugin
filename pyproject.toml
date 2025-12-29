@@ -9,7 +9,8 @@ classifiers = [
 version = "0.1.0"
 dependencies = [
     "kama-ui @ git+https://github.com/pikulo-kama/kama-ui.git",
-    "kama-db @ git+https://github.com/pikulo-kama/kama-db.git"
+    "kama-db @ git+https://github.com/pikulo-kama/kama-db.git",
+    "kama-tr @ git+https://github.com/pikulo-kama/kama-tr.git"
 ]
 
 [project.optional-dependencies]
