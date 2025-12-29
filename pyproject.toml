@@ -10,6 +10,7 @@ version = "0.1.0"
 dependencies = [
     "kama-ui @ git+https://github.com/pikulo-kama/kama-ui.git",
     "kama-db @ git+https://github.com/pikulo-kama/kama-db.git",
+    "kama-dbm @ git+https://github.com/pikulo-kama/kama-dbm.git",
     "kama-tr @ git+https://github.com/pikulo-kama/kama-tr.git"
 ]
 
@@ -19,7 +20,10 @@ test = [
 ]
 
 [project.entry-points."kama_ui.plugins"]
-db_plugin = "kui_db_plugin.plugin"
+ui_plugin = "kui_db_plugin.ui_plugin"
+
+[project.entry-points."kama_dbm.plugins"]
+dbm_plugin = "kui_db_plugin.dbm_plugin"
 
 [tool.coverage.run]
 source = ["kui_db_plugin"]
