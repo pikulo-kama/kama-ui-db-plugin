@@ -13,3 +13,6 @@ _cli.add_importer(WidgetsImporter())
 
 _cli.add_extractor(TextResourceExtractor())
 _cli.add_extractor(WidgetsExtractor())
+
+import kui_db_plugin.migration as migrations
+_cli.add_migration_path(migrations.__path__[0])

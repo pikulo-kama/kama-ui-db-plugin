@@ -25,6 +25,12 @@ ui_plugin = "kui_db_plugin.ui_plugin"
 [project.entry-points."kama_dbm.plugins"]
 dbm_plugin = "kui_db_plugin.dbm_plugin"
 
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"kui_db_plugin.migration" = ["*.sql"]
+
 [tool.coverage.run]
 source = ["kui_db_plugin"]
 disable_warnings = ["module-not-measured"]
