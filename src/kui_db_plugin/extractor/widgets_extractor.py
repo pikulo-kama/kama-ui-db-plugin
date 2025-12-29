@@ -1,11 +1,11 @@
 import json
 
 from kamadbm.command import CommandContext
-from kamadbm.extractor import DataExtractor
+from kamadbm.extractor import RegularExtractor
 from kdb.manager import DatabaseManager
 
 
-class WidgetsExtractor(DataExtractor):
+class WidgetsExtractor(RegularExtractor):
     """
     Extractor for ui_widgets table.
     """

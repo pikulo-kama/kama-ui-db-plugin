@@ -1,8 +1,8 @@
 from kamadbm.command import CommandContext
-from kamadbm.importer import DataImporter
+from kamadbm.importer import RegularImporter
 
 
-class TextResourceImporter(DataImporter):
+class TextResourceImporter(RegularImporter):
     """
     Importer for text_resources table.
     """

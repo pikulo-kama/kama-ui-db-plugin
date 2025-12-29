@@ -1,10 +1,10 @@
 import json
 
 from kamadbm.command import CommandContext
-from kamadbm.importer import DataImporter
+from kamadbm.importer import RegularImporter
 
 
-class WidgetsImporter(DataImporter):
+class WidgetsImporter(RegularImporter):
     """
     Importer for ui_widgets table.
     """

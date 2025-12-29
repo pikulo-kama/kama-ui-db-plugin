@@ -1,10 +1,10 @@
 from typing import Any
 
 from kamadbm.command import CommandContext
-from kamadbm.extractor import DataExtractor
+from kamadbm.extractor import RegularExtractor
 
 
-class TextResourceExtractor(DataExtractor):
+class TextResourceExtractor(RegularExtractor):
     """
     Extractor for text_resources table.
     """
