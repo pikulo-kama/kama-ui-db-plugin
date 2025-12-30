@@ -1,5 +1,5 @@
 from kdb.manager import DatabaseManager
-from kui.core.app import prop
+from kui.core.shortcut import prop
 
 
 db = DatabaseManager(prop("datasource.db-path"))
