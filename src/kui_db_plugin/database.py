@@ -1,5 +1,5 @@
 from kdb.manager import DatabaseManager
-from kui.core.app import KamaApplication
+from kui.core.app import prop
 
-_application = KamaApplication()
-db = DatabaseManager(_application.config.get("datasource.db-path"))
+
+db = DatabaseManager(prop("datasource.db-path"))
