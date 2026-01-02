@@ -19,6 +19,9 @@ test = [
     "pytest-cov >= 7.0.0, < 8.0.0"
 ]
 
+[project.entry-points."pyinstaller40"]
+hook-dirs = "kui_db_plugin._pyinstaller_hooks:get_hook_dirs"
+
 [project.entry-points."kama_ui.plugins"]
 ui_plugin = "kui_db_plugin.ui_plugin"
 

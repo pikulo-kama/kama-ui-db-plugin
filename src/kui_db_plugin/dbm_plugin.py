@@ -1,3 +1,4 @@
+from importlib import resources
 from kamadbm.cli import DatabaseCLI
 
 from kui_db_plugin.extractor.text_resource_extractor import TextResourceExtractor
@@ -15,4 +16,5 @@ _cli.add_extractor(TextResourceExtractor())
 _cli.add_extractor(WidgetsExtractor())
 
 import kui_db_plugin.migration as migrations
-_cli.add_migration_path(migrations.__path__[0])
+migrations_path = resources.files(migrations)
+_cli.add_migration_path(str(migrations_path))
