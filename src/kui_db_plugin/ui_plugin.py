@@ -9,8 +9,8 @@ from kui_db_plugin.provider.tr import DatabaseTableTextResourceProvider
 
 _application = KamaApplication()
 
-_application.metadata_provider = DatabaseTableMetadataProvider(db)
-_application.section_provider = DatabaseTableSectionProvider(db)
+_application.provider.metadata = DatabaseTableMetadataProvider(db)
+_application.provider.section = DatabaseTableSectionProvider(db)
 _application.text_resources.set_provider(DatabaseTableTextResourceProvider(db))
 
 load_colors(_application)
