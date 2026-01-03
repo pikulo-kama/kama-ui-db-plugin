@@ -1,7 +1,5 @@
 from kui.core.app import KamaApplication
-from kui.style.color import KamaComposedColor, KamaColor
-from kui.style.font import KamaFont
-from kui.style.image import DynamicResource
+from kui.style.type import KamaComposedColor, KamaColor, KamaFont, DynamicResource
 from kui_db_plugin.database import db
 
 
