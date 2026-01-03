@@ -14,7 +14,7 @@ def load_colors(application: KamaApplication):
             dark_color=KamaColor(color_row.get("dark"))
         )
 
-        application.add_color(color)
+        application.style.add_color(color)
 
 
 def load_fonts(application: KamaApplication):
@@ -27,7 +27,7 @@ def load_fonts(application: KamaApplication):
             font_weight=font_row.get("font_weight")
         )
 
-        application.add_font(color)
+        application.style.add_font(color)
 
 
 def load_dynamic_resources(application: KamaApplication):
@@ -39,4 +39,4 @@ def load_dynamic_resources(application: KamaApplication):
             color_code=resource_row.get("color")
         )
 
-        application.add_dynamic_resource(resource)
+        application.style.add_dynamic_resource(resource)
