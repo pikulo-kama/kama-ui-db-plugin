@@ -2,7 +2,7 @@ import json
 
 from kdb.manager import DatabaseManager
 from kui.core.metadata import WidgetMetadata, RefreshEventMetadata
-from kui.core.provider import MetadataProvider
+from kui.core.service.provider import MetadataProvider
 
 
 class DatabaseTableMetadataProvider(MetadataProvider):

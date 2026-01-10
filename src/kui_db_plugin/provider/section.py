@@ -1,6 +1,6 @@
 from kdb.manager import DatabaseManager
 from kui.core.controller import WidgetController
-from kui.core.provider import ControllerSectionProvider, Section
+from kui.core.service.provider import ControllerSectionProvider, Section
 
 
 class DatabaseTableSectionProvider(ControllerSectionProvider):

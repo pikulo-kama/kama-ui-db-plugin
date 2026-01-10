@@ -11,7 +11,7 @@ _application = KamaApplication()
 
 _application.provider.metadata = DatabaseTableMetadataProvider(db)
 _application.provider.section = DatabaseTableSectionProvider(db)
-_application.text_resources.set_provider(DatabaseTableTextResourceProvider(db))
+_application.translations.set_provider(DatabaseTableTextResourceProvider(db))
 
 load_colors(_application)
 load_fonts(_application)
