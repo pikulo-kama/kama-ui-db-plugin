@@ -1,8 +1,6 @@
-import json
-
 from kamadbm.command import CommandContext
 from kamadbm.extractor import RegularExtractor
-from kdb.manager import DatabaseManager
+from kui.transformer.widget import JSONWidgetDataTransformer
 
 
 class WidgetsExtractor(RegularExtractor):
@@ -11,94 +9,24 @@ class WidgetsExtractor(RegularExtractor):
     """
 
     def _post_extract(self, data: list[dict], context: CommandContext):
-        widget_data = self.__build_tree(data, context.database)
-        return self.__format_tree(widget_data)
+        transformer = JSONWidgetDataTransformer()
+        data = self.__populate_events(data, context)
 
-    def __build_tree(self, widget_data, db: DatabaseManager, parent_id=None):
-        """
-        Used to recursively collect widgets based on
-        parent widget and return a tree structure.
-        """
+        return transformer.nest(data)
 
+    @staticmethod
+    def __populate_events(data: list[dict], context: CommandContext):
         widgets = []
+        db = context.database
 
-        for widget in widget_data:
+        for widget in data:
             section_id = widget.get("section_id")
             widget_id = widget.get("widget_id")
-            widget_parent_id = widget.get("parent_widget_id")
-            widget_unique_id = f"{section_id}.{widget_id}"
-            widget_unique_parent_id = f"{section_id}.{widget_parent_id}"
 
             events = db.table("ui_widget_events") \
+                .where("section_id = ? AND widget_id = ?", section_id, widget_id) \
+                .retrieve()
 
-            if section_id is None:
-                events.where("section_id IS NULL and widget_id = ?", widget_id)
-            else:
-                events.where("section_id = ? and widget_id = ?", section_id, widget_id)
-
-            refresh_events = []
-            recursive_refresh_events = []
-
-            # Collect widget events.
-            for event in events.retrieve():
-                event_id = event.get("refresh_event_id")
-                is_recursive = event.get("refresh_children") == 1
-
-                if is_recursive:
-                    recursive_refresh_events.append(event_id)
-
-                else:
-                    refresh_events.append(event_id)
-
-            if len(refresh_events) > 0:
-                widget["refresh_events"] = refresh_events
-
-            if len(recursive_refresh_events) > 0:
-                widget["recursive_refresh_events"] = recursive_refresh_events
-
-            if widget_unique_parent_id == parent_id or (parent_id is None and widget_parent_id is None):
-                children = self.__build_tree(widget_data, db, parent_id=widget_unique_id)
-                widget["children"] = children
-
-                widgets.append(widget)
+            widget["events"] = [event.to_json() for event in events]
 
         return widgets
-
-    def __format_tree(self, widget_data):
-        """
-        Used to recursively go through widget tree
-        and cleanup/format some of its properties.
-        """
-
-        widget_data.sort(key=lambda w: w.get("order_id", 0))
-
-        for widget in widget_data:
-
-            section_id = widget.get("section_id")
-            parent_widget_id = widget.get("parent_widget_id")
-            stylesheet = widget.get("stylesheet")
-
-            # Only show section ID on root widgets.
-            if parent_widget_id is not None and section_id is not None:
-                del widget["section_id"]
-
-            # Remove parent widget id.
-            if parent_widget_id is not None:
-                del widget["parent_widget_id"]
-
-            # Remove order id.
-            if "order_id" in widget:
-                del widget["order_id"]
-
-            if stylesheet is not None:
-                widget["stylesheet"] = json.loads(stylesheet)
-
-            children = widget.get("children", [])
-            formatted_children = self.__format_tree(children)
-            widget["children"] = formatted_children
-
-            # No need to show empty children object.
-            if len(children) == 0:
-                del widget["children"]
-
-        return widget_data

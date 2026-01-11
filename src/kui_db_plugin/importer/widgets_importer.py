@@ -1,7 +1,6 @@
-import json
-
 from kamadbm.command import CommandContext
 from kamadbm.importer import RegularImporter
+from kui.transformer.widget import JSONWidgetDataTransformer
 
 
 class WidgetsImporter(RegularImporter):
@@ -10,107 +9,49 @@ class WidgetsImporter(RegularImporter):
     """
 
     def _format_data(self, data: list[dict], metadata: dict, context: CommandContext):
-        formatted_data = []
-        filter_string = metadata.get("filter")
+        transformer = JSONWidgetDataTransformer()
+        transformed_data = transformer.flatten(data)
 
-        events_table = context.database.table("ui_widget_events")
+        return self.__process_events(transformed_data, context)
 
-        if filter_string:
-            events_table.where(filter_string)
+    @staticmethod
+    def __process_events(data: list[dict], context: CommandContext):
 
-        # Remove widget events before importing.
-        events_table.retrieve()
-        events_table.remove_all()
-        events_table.save()
+        for widget in data:
+            section_id = widget.get("section_id")
+            widget_id = widget.get("widget_id")
+            refresh_events = widget.get("refresh_events", [])
+            recursive_refresh_events = widget.get("recursive_refresh_events", [])
 
-        for root_widget in data:
-            for widget in self.__flatten_tree(root_widget, root_widget, events_table):
-                formatted_data.append(widget)
-                
-                for template_widget in self.__parse_template(widget, context):
-                    formatted_data.append(template_widget)
+            if "refresh_events" in widget:
+                del widget["refresh_events"]
 
-        return formatted_data
+            if "recursive_refresh_events" in widget:
+                del widget["recursive_refresh_events"]
 
-    def __flatten_tree(self, root_widget, parent, events_table):
-        """
-        Used to go through widget tree
-        and format it back into flat structure.
-        """
+            events_table = context.database.table("ui_widget_events") \
+                .where(f"section_id == '{section_id}'") \
+                .retrieve()
 
-        widgets = []
+            events_table.remove_all() \
+                .save()
 
-        parent["section_id"] = root_widget.get("section_id")
-        children = parent.get("children", [])
-        refresh_events = parent.get("refresh_events", [])
-        recursive_refresh_events = parent.get("recursive_refresh_events", [])
-        all_events = refresh_events + recursive_refresh_events
+            for event in refresh_events:
+                events_table.add(
+                    section_id=section_id,
+                    widget_id=widget_id,
+                    refresh_event_id=event,
+                    refresh_children=0
+                )
 
-        # Save refresh events.
-        for event in all_events:
-            refresh_children = 1 if event in recursive_refresh_events else 0
-            row = events_table.add_row()
+            for event in recursive_refresh_events:
+                events_table.add(
+                    section_id=section_id,
+                    widget_id=widget_id,
+                    refresh_event_id=event,
+                    refresh_children=1
+                )
 
-            events_table.set(row, "section_id", parent["section_id"])
-            events_table.set(row, "widget_id", parent["widget_id"])
-            events_table.set(row, "refresh_event_id", event)
-            events_table.set(row, "refresh_children", refresh_children)
-
-        events_table.save()
-
-        if "stylesheet" in parent:
-            parent["stylesheet"] = json.dumps(parent.get("stylesheet"), indent=4)
-
-        if "refresh_events" in parent:
-            del parent["refresh_events"]
-
-        if "recursive_refresh_events" in parent:
-            del parent["recursive_refresh_events"]
-
-        if "children" in parent:
-            del parent["children"]
-
-        widgets.append(parent)
-
-        order = 0
-        for widget in children:
-            order += 1
-            widget["order_id"] = order
-            widget["parent_widget_id"] = parent["widget_id"]
-
-            for child_widget in self.__flatten_tree(root_widget, widget, events_table):
-                widgets.append(child_widget)
-
-        return widgets
-
-    def __parse_template(self, widget: dict, context: CommandContext):
-        
-        template = widget.get("template", {})
-        data = []
-
-        for template_section in template.keys():
-            section = template.get(template_section, [])
-            data += self.__format_template_section(template_section, widget, section, context)
-
-        if "template" in widget:
-            del widget["template"]
+            events_table.save()
 
         return data
-
-    def __format_template_section(self, section_name: str, widget: dict, section: list[dict], context: CommandContext):
-        section_id = f"{widget["widget_id"]}__template_{section_name}"
-        section_filter = f"section_id == '{section_id}'"
-        order = 0
-
-        context.database.table("ui_widgets") \
-            .where(section_filter) \
-            .retrieve() \
-            .remove_all() \
-            .save()
-
-        for segment in section:
-            order += 1
-            segment["order_id"] = order
-            segment["section_id"] = section_id
-
-        return self._format_data(section, {"filter": section_filter}, context)
