@@ -10,23 +10,48 @@ class WidgetsExtractor(RegularExtractor):
 
     def _post_extract(self, data: list[dict], context: CommandContext):
         transformer = JSONWidgetDataTransformer()
-        data = self.__populate_events(data, context)
+        data = self.__process_data(data, context)
 
         return transformer.nest(data)
 
-    @staticmethod
-    def __populate_events(data: list[dict], context: CommandContext):
-        widgets = []
-        db = context.database
+    @classmethod
+    def __process_data(cls, data: list[dict], context: CommandContext):
+
+        processed_template_widgets = []
 
         for widget in data:
-            section_id = widget.get("section_id")
             widget_id = widget.get("widget_id")
 
-            events = db.table("ui_widget_events") \
-                .where("section_id = ? AND widget_id = ?", section_id, widget_id) \
-                .retrieve()
+            template_header_section = f"{widget_id}__template_header"
+            template_body_section = f"{widget_id}__template_body"
+            template_footer_section = f"{widget_id}__template_footer"
 
+            template_widgets = context.database.table(context.args.table_name) \
+                .where(
+                "section_id = ? OR section_id = ? OR section_id = ?",
+                template_header_section,
+                template_body_section,
+                template_footer_section
+            ).retrieve()
+
+            cls.__populate_events(widget, context)
+
+            for template_widget in template_widgets:
+                template_widget = cls.__populate_events(template_widget.to_json(include_nulls=False), context)
+                processed_template_widgets.append(template_widget)
+
+        return data + processed_template_widgets
+
+    @staticmethod
+    def __populate_events(widget: dict, context: CommandContext):
+        section_id = widget.get("section_id")
+        widget_id = widget.get("widget_id")
+
+        events = context.database.table("ui_widget_events") \
+            .where("section_id = ? AND widget_id = ?", section_id, widget_id) \
+            .retrieve()
+
+        if not events.is_empty:
             widget["events"] = [event.to_json() for event in events]
 
-        return widgets
+        return widget
