@@ -1,5 +1,3 @@
-import json
-
 from kdb.manager import DatabaseManager
 from kui.core.metadata import WidgetMetadata, RefreshEventMetadata
 from kui.core.service.provider import MetadataProvider
@@ -56,7 +54,7 @@ class DatabaseTableMetadataProvider(MetadataProvider):
                 content=widget_row.get("content"),
                 tooltip=widget_row.get("tooltip"),
                 alignment_string=widget_row.get("alignment"),
-                stylesheet=self.__parse_stylesheet(stylesheet),
+                stylesheet=self._parse_stylesheet(stylesheet or "{}"),
                 refresh_events=refresh_events,
                 refresh_events_meta=refresh_events_meta
             )
@@ -64,20 +62,3 @@ class DatabaseTableMetadataProvider(MetadataProvider):
             metadata.append(widget_meta)
 
         return metadata
-
-    @staticmethod
-    def __parse_stylesheet(stylesheet: str):
-        """
-        Converts a dictionary of CSS properties into a standard QSS string.
-        """
-
-        stylesheet_string = ""
-        stylesheet_map = {}
-
-        if stylesheet is not None:
-            stylesheet_map = json.loads(stylesheet)
-
-        for key, value in stylesheet_map.items():
-            stylesheet_string += f"{key}: {value};\n"
-
-        return stylesheet_string
