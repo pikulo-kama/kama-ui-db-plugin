@@ -1,6 +1,6 @@
 from kdb.manager import DatabaseManager
 from kui.core.metadata import WidgetMetadata, RefreshEventMetadata
-from kui.core.service.provider import MetadataProvider
+from kui.core.provider import MetadataProvider
 
 
 class DatabaseTableMetadataProvider(MetadataProvider):
