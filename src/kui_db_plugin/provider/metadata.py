@@ -3,6 +3,17 @@ from kui.core.metadata import WidgetMetadata, RefreshEventMetadata
 from kui.core.provider import MetadataProvider
 
 
+_rename_keys = {
+    "id": "widget_id",
+    "type": "widget_type",
+    "layout": "layout_type",
+    "section": "section_id",
+    "parent": "parent_widget_id",
+    "style_id": "style_object_name",
+    "alignment": "alignment_string"
+}
+
+
 class DatabaseTableMetadataProvider(MetadataProvider):
 
     def __init__(self, db_manager: DatabaseManager):
@@ -12,14 +23,13 @@ class DatabaseTableMetadataProvider(MetadataProvider):
 
         metadata = []
         widgets = self.__manager.table("ui_widgets") \
-            .where("section_id = ?", section_id) \
+            .where("section = ?", section_id) \
             .retrieve()
 
         for widget_row in widgets:
 
-            widget_id = widget_row.get("widget_id")
-            section_id = widget_row.get("section_id")
-            stylesheet = widget_row.get("stylesheet")
+            widget_id = widget_row.get("id")
+            section_id = widget_row.get("section")
             refresh_events_meta = {}
             refresh_events = []
 
@@ -34,31 +44,19 @@ class DatabaseTableMetadataProvider(MetadataProvider):
                 refresh_events.append(refresh_event)
                 refresh_events_meta[refresh_event] = RefreshEventMetadata(refresh_children)
 
-            widget_meta = WidgetMetadata(
-                widget_id=widget_id,
-                section_id=section_id,
-                parent_widget_id=widget_row.get("parent_widget_id"),
-                controller=widget_row.get("controller"),
-                order_id=widget_row.get("order_id"),
-                widget_type=widget_row.get("widget_type_id"),
-                layout_type=widget_row.get("layout_type_id"),
-                grid_columns=widget_row.get("grid_columns"),
-                spacing=widget_row.get("spacing"),
-                width=widget_row.get("width"),
-                height=widget_row.get("height"),
-                margin_left=widget_row.get("margin_left"),
-                margin_top=widget_row.get("margin_top"),
-                margin_right=widget_row.get("margin_right"),
-                margin_bottom=widget_row.get("margin_bottom"),
-                style_object_name=widget_row.get("style_object_name"),
-                content=widget_row.get("content"),
-                tooltip=widget_row.get("tooltip"),
-                alignment_string=widget_row.get("alignment"),
-                stylesheet=self._parse_stylesheet(stylesheet or "{}"),
-                refresh_events=refresh_events,
-                refresh_events_meta=refresh_events_meta
-            )
+            widget_json = widget_row.to_json()
 
-            metadata.append(widget_meta)
+            stylesheet = widget_json.get("stylesheet") or "{}"
+            stylesheet = self._parse_stylesheet(stylesheet)
+
+            widget_json["refresh_events"] = refresh_events
+            widget_json["refresh_events_meta"] = refresh_events_meta
+            widget_json["stylesheet"] = stylesheet
+
+            for key, target_key in _rename_keys.items():
+                if key in widget_json:
+                    widget_json[target_key] = widget_json.pop(key)
+
+            metadata.append(WidgetMetadata(**widget_json))
 
         return metadata

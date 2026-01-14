@@ -20,7 +20,7 @@ class WidgetsExtractor(RegularExtractor):
         processed_template_widgets = []
 
         for widget in data:
-            widget_id = widget.get("widget_id")
+            widget_id = widget.get("id")
 
             template_header_section = f"{widget_id}__template_header"
             template_body_section = f"{widget_id}__template_body"
@@ -28,7 +28,7 @@ class WidgetsExtractor(RegularExtractor):
 
             template_widgets = context.database.table(context.args.table_name) \
                 .where(
-                "section_id = ? OR section_id = ? OR section_id = ?",
+                "section = ? OR section = ? OR section = ?",
                 template_header_section,
                 template_body_section,
                 template_footer_section
@@ -44,8 +44,8 @@ class WidgetsExtractor(RegularExtractor):
 
     @staticmethod
     def __populate_events(widget: dict, context: CommandContext):
-        section_id = widget.get("section_id")
-        widget_id = widget.get("widget_id")
+        section_id = widget.get("section")
+        widget_id = widget.get("id")
 
         events = context.database.table("ui_widget_events") \
             .where("section_id = ? AND widget_id = ?", section_id, widget_id) \

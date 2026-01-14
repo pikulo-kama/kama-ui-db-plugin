@@ -12,14 +12,14 @@ class WidgetsImporter(RegularImporter):
         transformer = JSONWidgetDataTransformer()
         transformed_data = transformer.flatten(data)
         template_sections = set([
-            record.get("section_id")
+            record.get("section")
             for record in transformed_data
-            if "__template" in record.get("section_id")
+            if "__template" in record.get("section")
         ])
 
         for section_id in template_sections:
             context.database.table(metadata.get("table_name")) \
-                .where(f"section_id = ?", section_id) \
+                .where(f"section = ?", section_id) \
                 .retrieve() \
                 .remove_all() \
                 .save()
@@ -30,8 +30,8 @@ class WidgetsImporter(RegularImporter):
     def __process_events(data: list[dict], context: CommandContext):
 
         for widget in data:
-            section_id = widget.get("section_id")
-            widget_id = widget.get("widget_id")
+            section_id = widget.get("section")
+            widget_id = widget.get("id")
             refresh_events = widget.get("refresh_events", [])
             recursive_refresh_events = widget.get("recursive_refresh_events", [])
             all_events = refresh_events + recursive_refresh_events
