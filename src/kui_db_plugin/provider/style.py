@@ -1,5 +1,5 @@
 from kui.core.app import KamaApplication
-from kui.style.type import KamaComposedColor, KamaColor, KamaFont, DynamicResource
+from kui.style.type import KamaComposedColor, KamaColor, KamaFont, DynamicImage
 from kui_db_plugin.database import db
 
 
@@ -28,13 +28,13 @@ def load_fonts(application: KamaApplication):
         application.style.add_font(color)
 
 
-def load_dynamic_resources(application: KamaApplication):
+def load_dynamic_images(application: KamaApplication):
 
-    for resource_row in db.retrieve_table("setup_resource"):
-        resource = DynamicResource(
-            resource_name=resource_row.get("resource_name"),
-            resource_path=resource_row.get("resource_path"),
+    for resource_row in db.retrieve_table("setup_dynamic_image"):
+        resource = DynamicImage(
+            image_name=resource_row.get("image_name"),
+            image_path=resource_row.get("image_path"),
             color_code=resource_row.get("color")
         )
 
-        application.style.add_dynamic_resource(resource)
+        application.style.add_dynamic_image(resource)

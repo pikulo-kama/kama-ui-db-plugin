@@ -3,7 +3,7 @@ from kui_db_plugin.database import db
 
 from kui_db_plugin.provider.metadata import DatabaseTableMetadataProvider
 from kui_db_plugin.provider.section import DatabaseTableSectionProvider
-from kui_db_plugin.provider.style import load_colors, load_fonts, load_dynamic_resources
+from kui_db_plugin.provider.style import load_colors, load_fonts, load_dynamic_images
 from kui_db_plugin.provider.tr import DatabaseTableTextResourceProvider
 
 
@@ -15,4 +15,4 @@ _application.translations.set_provider(DatabaseTableTextResourceProvider(db))
 
 load_colors(_application)
 load_fonts(_application)
-load_dynamic_resources(_application)
+load_dynamic_images(_application)
