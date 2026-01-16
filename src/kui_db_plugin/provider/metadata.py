@@ -1,4 +1,5 @@
 from kdb.manager import DatabaseManager
+from kui.core.filter import KamaFilter
 from kui.core.metadata import WidgetMetadata, RefreshEventMetadata
 from kui.core.provider import MetadataProvider
 
@@ -10,7 +11,8 @@ _rename_keys = {
     "section": "section_id",
     "parent": "parent_widget_id",
     "style_id": "style_object_name",
-    "alignment": "alignment_string"
+    "alignment": "alignment_string",
+    "args": "controller_args"
 }
 
 
@@ -19,11 +21,11 @@ class DatabaseTableMetadataProvider(MetadataProvider):
     def __init__(self, db_manager: DatabaseManager):
         self.__manager = db_manager
 
-    def provide(self, section_id: str) -> list[WidgetMetadata]:
+    def provide(self, query: KamaFilter) -> list[WidgetMetadata]:
 
         metadata = []
         widgets = self.__manager.table("ui_widgets") \
-            .where("section = ?", section_id) \
+            .where(query.to_sql()) \
             .retrieve()
 
         for widget_row in widgets:

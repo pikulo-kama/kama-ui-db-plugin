@@ -1,5 +1,5 @@
 from kdb.manager import DatabaseManager
-from kui.core.controller import WidgetController
+from kui.core.filter import KamaFilter
 from kui.core.provider import ControllerSectionProvider, Section
 
 
@@ -8,11 +8,11 @@ class DatabaseTableSectionProvider(ControllerSectionProvider):
     def __init__(self, manager: DatabaseManager):
         self.__manager = manager
 
-    def provide(self, controller: WidgetController) -> list[Section]:
+    def provide(self, query: KamaFilter) -> list[Section]:
 
         sections = []
         section_table = self.__manager.table("ui_sections") \
-            .where("controller = ?", controller.__class__.__name__) \
+            .where(query.to_sql()) \
             .order_by("order_id") \
             .retrieve()
 
