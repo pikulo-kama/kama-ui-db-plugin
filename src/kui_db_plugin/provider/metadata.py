@@ -1,3 +1,5 @@
+import json
+
 from kdb.manager import DatabaseManager
 from kui.core.filter import KamaFilter
 from kui.core.metadata import WidgetMetadata, RefreshEventMetadata
@@ -49,11 +51,12 @@ class DatabaseTableMetadataProvider(MetadataProvider):
             widget_json = widget_row.to_json()
 
             stylesheet = widget_json.get("stylesheet") or "{}"
-            stylesheet = self._parse_stylesheet(stylesheet)
+            controller_args = widget_json.get("args") or "{}"
 
             widget_json["refresh_events"] = refresh_events
             widget_json["refresh_events_meta"] = refresh_events_meta
-            widget_json["stylesheet"] = stylesheet
+            widget_json["stylesheet"] = self._parse_stylesheet(stylesheet)
+            widget_json["args"] = json.loads(controller_args)
 
             for key, target_key in _rename_keys.items():
                 if key in widget_json:
