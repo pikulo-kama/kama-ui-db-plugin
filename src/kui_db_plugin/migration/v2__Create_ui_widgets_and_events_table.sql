@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS ui_widgets (
     content             VARCHAR,
     tooltip             VARCHAR,
     controller          VARCHAR,
+    args                TEXT,
     grid_columns        INTEGER,
     style_id            VARCHAR,
     alignment           VARCHAR,
