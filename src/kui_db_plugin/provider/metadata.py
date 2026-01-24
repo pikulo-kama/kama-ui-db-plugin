@@ -4,18 +4,7 @@ from kdb.manager import DatabaseManager
 from kui.core.filter import KamaFilter
 from kui.core.metadata import WidgetMetadata, RefreshEventMetadata
 from kui.core.provider import MetadataProvider
-
-
-_rename_keys = {
-    "id": "widget_id",
-    "type": "widget_type",
-    "layout": "layout_type",
-    "section": "section_id",
-    "parent": "parent_widget_id",
-    "style_id": "style_object_name",
-    "alignment": "alignment_string",
-    "args": "controller_args"
-}
+from kui.transformer.widget import WidgetMetadataTransformer
 
 
 class DatabaseTableMetadataProvider(MetadataProvider):
@@ -26,6 +15,7 @@ class DatabaseTableMetadataProvider(MetadataProvider):
     def provide(self, query: KamaFilter) -> list[WidgetMetadata]:
 
         metadata = []
+        metadata_transformer = WidgetMetadataTransformer()
         widgets = self.__manager.table("ui_widgets") \
             .where(query.to_sql()) \
             .retrieve()
@@ -58,10 +48,7 @@ class DatabaseTableMetadataProvider(MetadataProvider):
             widget_json["stylesheet"] = self._parse_stylesheet(stylesheet)
             widget_json["args"] = json.loads(controller_args)
 
-            for key, target_key in _rename_keys.items():
-                if key in widget_json:
-                    widget_json[target_key] = widget_json.pop(key)
-
+            widget_json = metadata_transformer.transform_single(widget_json)
             metadata.append(WidgetMetadata(**widget_json))
 
         return metadata
