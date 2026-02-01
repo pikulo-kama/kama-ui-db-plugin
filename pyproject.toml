@@ -11,7 +11,8 @@ dependencies = [
     "kama-ui @ git+https://github.com/pikulo-kama/kama-ui.git",
     "kama-db @ git+https://github.com/pikulo-kama/kama-db.git",
     "kama-dbm @ git+https://github.com/pikulo-kama/kama-dbm.git",
-    "kama-tr @ git+https://github.com/pikulo-kama/kama-tr.git"
+    "kama-tr @ git+https://github.com/pikulo-kama/kama-tr.git",
+    "kama-util @ git+https://github.com/pikulo-kama/kama-util.git",
 ]
 
 [project.optional-dependencies]
@@ -36,6 +37,7 @@ include-package-data = true
 
 [tool.coverage.run]
 source = ["kui_db_plugin"]
+omit = ["**/*_plugin.py"]
 disable_warnings = ["module-not-measured"]
 
 [tool.pytest.ini_options]

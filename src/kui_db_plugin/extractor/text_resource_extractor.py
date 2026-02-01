@@ -9,5 +9,5 @@ class TextResourceExtractor(RegularExtractor):
     """
 
     def _post_extract(self, data: list[dict[str, str]], context: CommandContext):
-        formatter = JSONTextResourceDataTransformer()
-        return formatter.nest(data)
+        transformer = JSONTextResourceDataTransformer()
+        return transformer.nest(data)
